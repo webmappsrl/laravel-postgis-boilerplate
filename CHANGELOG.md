@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.3](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.1.2...v1.1.3) (2025-04-09)
+
+
+### Bug Fixes
+
+* Update composer.json ([0bf706c](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/0bf706c04764af041ad9a408a84edc769f418420))
+* Update composer.json ([c371dc2](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/c371dc2a8de7b513c96603fa11f9af5242cfe4af))
+
 ## [1.1.2](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.1.1...v1.1.2) (2025-03-17)
 
 
