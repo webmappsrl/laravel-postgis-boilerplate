@@ -11,7 +11,7 @@ return [
     |
     */
 
-    'version' => '1.1.2', // x-release-please-version
+    'version' => '1.1.3', // x-release-please-version
     /*
     |--------------------------------------------------------------------------
     | Application Name
