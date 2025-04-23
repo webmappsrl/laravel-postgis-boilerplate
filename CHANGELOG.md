@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.1.3...v1.2.0) (2025-04-23)
+
+
+### Features
+
+* redirect to nova dashboard ([381f238](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/381f238faa6bedbd1c47d5ae436f82cbef88c4bd))
+
+
+### Bug Fixes
+
+* user model ([08776ab](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/08776ab7755809b1fdff8b9cdbf016058da96866))
+* user model ([77afed0](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/77afed0f71ad771cd2f6cb919ca480547028846c))
+
 ## [1.1.3](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.1.2...v1.1.3) (2025-04-09)
 
 
