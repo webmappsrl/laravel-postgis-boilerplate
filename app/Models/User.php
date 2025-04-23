@@ -4,8 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Wm\WmPackage\Models\User as WmUser;
 use Illuminate\Notifications\Notifiable;
+use Wm\WmPackage\Models\User as WmUser;
 
 class User extends WmUser
 {
