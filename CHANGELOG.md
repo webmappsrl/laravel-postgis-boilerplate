@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.1](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.2.0...v1.2.1) (2025-04-23)
+
+
+### Bug Fixes
+
+* dependencies ([5722f55](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/5722f55ccca693860da3bbc33d0229fa47553a07))
+* jwt ([0a32edc](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/0a32edca820bbfae95b7036f7979c7eb92ae4799))
+* providers ([f42feaa](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/f42feaa9a5493b7aa3a9b414c93702ddedd523dc))
+* providers ([800cae6](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/800cae6e1d534e0f71ede4bd4688b042e08806a4))
+* queue connection ([c418307](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/c418307119d72a74cb7a821c17b38e798a8450c7))
+
 ## [1.2.0](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.1.3...v1.2.0) (2025-04-23)
 
 
