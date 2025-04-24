@@ -57,8 +57,8 @@ php artisan jwt:secret
 
 #### Nota:
 
--   Per completare l'installazione di Laravel Nova, é necessario fornire le credenziali di accesso.
-  
+-   Per completare l'installazione di Laravel Nova, é necessario fornire le credenziali di accesso. Il modo più semplice è inserire un file auth.json nella root del progetto (file in .gitignore)
+
 ### Differenze ambiente produzione locale
 
 Questo sistema di container docker è utilizzabile sia per lo sviluppo locale sia per un sistema in produzione.
@@ -189,3 +189,150 @@ Durante l'esecuzione degli script potrebbero verificarsi problemi di scrittura s
 Xdebug potrebbe non trovare il file di log configurato nel .ini, quindi generare vari warnings
 
 -   creare un file in `/var/log/xdebug.log` all'interno del container phpfpm. Eseguire un `chown www-data /var/log/xdebug.log`. Creare questo file solo se si ha esigenze di debug errori xdebug (impossibile analizzare il codice tramite breakpoint) visto che potrebbe crescere esponenzialmente nel tempo
+
+## Iniziare un nuovo shard
+
+### Attività propedeutiche nella repo
+
+Inizializzare wm-package come submodule (valutare se è necessario un aggiornamento del submodule, magari all'ultimo commit di wm-package)
+`git submodule init`
+`git submodule update --recursive`
+
+Aggiornare composer.lock
+`composer update`
+
+Pubblicare le migrazioni del wm-package a livello di app
+`php artisan vendor:publish --tag="wm-package-migrations"`
+
+prendere un auth.json (credenziali Laravel Nova) e metterlo nella root del progetto
+e pushare
+
+### installazione docker su server
+
+https://docs.docker.com/engine/install/debian/
+https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script
+
+in alternativa creare snapshot da server base o con shard già attivo e creare un nuovo server da quello
+
+### dopo aver clonato la repo sul server
+
+aggiornare la github action di deploy e
+
+Inizializzare submodule
+`git submodule init`
+`git submodule update --recursive`
+
+Aggiornare eventuali permessi sballati
+`chown -R 33:33 storage`
+
+Configurare l'env
+`cp .env-example .env`
+compilare .env
+
+Lanciare container docker
+`docker compose up -d`
+
+### impostazione vhost apache con custom headers CORS
+
+Inserire un nuovo file di conf apache per vhost, eg: `/etc/apache2/sites-available/geohub2.maphub.it.conf`
+
+Incollare questo contenuto e modificare le variabili in base al progetto:
+
+```
+<VirtualHost *:80>
+	ServerName geohub2.maphub.it
+
+	ServerAdmin webmaster@localhost
+	DocumentRoot /var/www/html/geohub2/public
+
+	ErrorLog ${APACHE_LOG_DIR}/geohub2.error.log
+	CustomLog ${APACHE_LOG_DIR}/geohub2.access.log combined
+
+# Modulo headers per CORS
+        <IfModule mod_headers.c>
+            Header always set Access-Control-Allow-Origin "*"
+            Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+            Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+            Header always set Access-Control-Allow-Credentials "true"
+
+            # Gestione speciale delle richieste OPTIONS per CORS
+            RewriteEngine On
+            RewriteCond %{REQUEST_METHOD} OPTIONS
+            RewriteRule ^(.*)$ $1 [R=200,L]
+        </IfModule>
+
+
+    <FilesMatch .php$>
+        SetHandler proxy:fcgi://localhost:9100
+    </FilesMatch>
+
+</VirtualHost>
+
+```
+
+ATTENZIONE: la porta php del proxy è quella indicata nel file .env! DOCKER_PHP_PORT
+
+Abilitare il vhost appena creato, eg: `a2ensite geohub2.maphub.it.conf`. Reload di apache per rendere il nuovo vhost funzionante `systemctl reload apache2`
+Dopo aver aggiornato i record DNS, eseguire `certbot --apache` per ottenere il certificato SSL.
+
+### Inizializzazione laravel
+
+Entra dentro il container php (devi aver installato geobox prima https://github.com/webmappsrl/geobox , altrimenti avrai un metodo diverso da quello illustrato qui )
+`geobox geohub2`
+
+Installa le dipendenze php
+`composer install`
+
+Genera le key necessarie a laravel
+`php artisan key:generate`
+`php artisan jwt:secret`
+
+Crea un nuovo utente
+`php artisan nova:user`
+
+### supervisorctl e horizon
+
+Installare supervisord
+https://www.digitalocean.com/community/tutorials/how-to-install-and-manage-supervisor-on-ubuntu-and-debian-vps
+
+```
+sudo apt update && sudo apt install supervisor
+```
+
+Aggiungere configurazione supervisor per horizon:
+
+in `/etc/supervisor/conf.d/horizon.conf`
+
+Inserire questo contenuto cambiando il nome del container php e la path per i log:
+
+```
+[program:laravel-horizon]
+process_name=%(program_name)s
+command=docker exec -i php_geohub2 php artisan horizon
+autostart=true
+autorestart=true
+user=root
+redirect_stderr=true
+stdout_logfile=/var/www/html/geohub2/storage/logs/horizon.log
+stopasgroup=true
+killasgroup=true
+stopwaitsecs=3600
+```
+
+poi lancia `systemctl restart supervisor` per ricaricare la configurazione di supervisor
+
+### Monitoraggio post installazione
+
+Horizon funziona?
+`php artisan horizon:list` (dentro al container php) -> dice se horizon è vivo oppure no
+
+Riavviare horizon
+`php artisan horizon:terminate` (dentro al container php)
+non parte?
+`supervisorctl restart --all` -> fa il restart dei processi supervisorctl per horizon
+dà errore?
+`systemctl restart supervisor` -> ricarica la configurazione di supervisor
+
+Il vhost apache funziona?
+no -> `systemctl reload apache2`
+non ancora, forse il dns non è aggiornato? -> velocizza la cosa mettendoti in locale nel file `/etc/hosts` (mac o linux) questo record `0.0.0.0 dominio` dove la prima parte rappresenta l'ip del server e la seconda il dominio impostato nel vhost, facendo così il browser risolverà l'ip del dominio senza DNS.
