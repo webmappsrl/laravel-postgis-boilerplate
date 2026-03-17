@@ -12,10 +12,10 @@ composer format
 composer dev
 
 # Entrare nel container PHP
-docker exec -it php_${APP_NAME} bash
+docker exec -it php-${APP_NAME} bash
 
 # Eseguire un comando artisan senza entrare nel container
-docker exec -it php_${APP_NAME} php artisan <comando>
+docker exec -it php-${APP_NAME} php artisan <comando>
 ```
 
 ## Ambienti Docker
@@ -42,7 +42,6 @@ docker compose -f local.compose.yml up -d
 ### Convenzioni container name
 
 I container usano trattino come separatore: `php-${APP_NAME}`, `postgres-${APP_NAME}`, `horizon-${APP_NAME}`.
-Eccezione: il `compose.yml` base usa underscore (`php_${APP_NAME}`) per compatibilità con geobox/nginx.
 
 ## Stack Elasticsearch
 
