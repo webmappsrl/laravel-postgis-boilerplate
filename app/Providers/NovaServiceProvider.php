@@ -3,8 +3,14 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Nova\App as NovaApp;
 use App\Nova\Dashboards\Main;
-use App\Nova\Media;
+use App\Nova\EcPoi;
+use App\Nova\EcTrack;
+use App\Nova\Layer;
+use App\Nova\TaxonomyPoiType;
+use App\Nova\UgcPoi;
+use App\Nova\UgcTrack;
 use App\Nova\User as NovaUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
@@ -14,6 +20,7 @@ use Laravel\Nova\Menu\MenuItem;
 use Laravel\Nova\Menu\MenuSection;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
+use Wm\WmPackage\Nova\Media as NovaMedia;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -31,18 +38,31 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuSection::dashboard(Main::class)->icon('chart-bar'),
 
                 MenuSection::make(__('Admin'), [
-                    MenuItem::resource(NovaUser::class),
+                    MenuItem::resource(NovaApp::class)
+                        ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator')),
+                    MenuItem::resource(NovaUser::class)
+                        ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator')),
+                    MenuItem::resource(NovaMedia::class)
+                        ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator')),
                 ])->icon('user')
-                    ->canSee(fn (Request $request) => $request->user()->hasRole('Administrator'))
+                    ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator'))
                     ->collapsable()
                     ->collapsedByDefault(),
 
-                MenuSection::make(__('Media'), [
-                    MenuItem::resource(Media::class),
-                ])->icon('photograph')
-                    ->canSee(fn (Request $request) => $request->user()->hasRole('Administrator'))
-                    ->collapsable()
-                    ->collapsedByDefault(),
+                MenuSection::make('UGC', [
+                    MenuItem::resource(UgcPoi::class),
+                    MenuItem::resource(UgcTrack::class),
+                ])->icon('document'),
+
+                MenuSection::make('EC', [
+                    MenuItem::resource(EcPoi::class),
+                    MenuItem::resource(EcTrack::class),
+                    MenuItem::resource(Layer::class),
+                ])->icon('document'),
+
+                MenuSection::make('Taxonomies', [
+                    MenuItem::resource(TaxonomyPoiType::class),
+                ])->icon('document'),
             ];
         });
     }
