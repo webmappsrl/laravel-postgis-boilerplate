@@ -8,6 +8,7 @@ use App\Nova\Dashboards\Main;
 use App\Nova\EcPoi;
 use App\Nova\EcTrack;
 use App\Nova\Layer;
+use App\Nova\Media as NovaMedia;
 use App\Nova\TaxonomyPoiType;
 use App\Nova\UgcPoi;
 use App\Nova\UgcTrack;
@@ -18,9 +19,9 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Fortify\Features;
 use Laravel\Nova\Menu\MenuItem;
 use Laravel\Nova\Menu\MenuSection;
+use Laravel\Nova\Menu\MenuGroup;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
-use Wm\WmPackage\Nova\Media as NovaMedia;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -63,6 +64,13 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuSection::make('Taxonomies', [
                     MenuItem::resource(TaxonomyPoiType::class),
                 ])->icon('document'),
+
+                MenuSection::make(__('Files'), [
+                    MenuItem::externalLink(__('Icons'), route('icons.upload.show'))->openInNewTab(),
+                ])->icon('folder')
+                    ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator'))
+                    ->collapsable()
+                    ->collapsedByDefault(),
             ];
         });
     }
