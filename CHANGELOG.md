@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.3.0](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.2.1...v1.3.0) (2026-03-17)
+
+
+### Features
+
+* add local.compose.yml for standalone local development ([40e2117](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/40e21175ba80d779e5a70cb14d359b18ec51a9b1))
+* align boilerplate with camminiditalia improvements ([b3400c4](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/b3400c423212637755e15b8b6127b282810e446a))
+* **nova:** ✨ add Media resource and update NovaServiceProvider ([7516557](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/75165577e8fbccbe20d19e1ee81659242309f147))
+
+
+### Bug Fixes
+
+* add scout-init service to local.compose.yml ([7d7c62f](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/7d7c62fcbfc66bd9a285083154bd79ebe98c10ca))
+* align all container names to dash convention ([fc6a6fb](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/fc6a6fb6f66f0fb8b8215a05022eb4aab47831be))
+* update README to Laravel 12 and align deploy_prod.sh ([e594d61](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/e594d61f231827b227b2c7ec14b0c02329cad731))
+
+
+### Miscellaneous Chores
+
+* **gitignore:** ➕ add .gitignore to storage/debugbar directory ([c232f51](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/c232f51b2be3fe724de132e593f5762927ff0dfe))
+* **gitignore:** ➕ add nova directory to ignore list ([f79141f](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/f79141fffdd28ba3a0c83a4c7e3a05e86052dba4))
+* **scripts:** 🚀 add comprehensive installation script ([7516557](https://github.com/webmappsrl/laravel-postgis-boilerplate/commit/75165577e8fbccbe20d19e1ee81659242309f147))
+
 ## [1.2.1](https://github.com/webmappsrl/laravel-postgis-boilerplate/compare/v1.2.0...v1.2.1) (2025-04-23)
 
 
