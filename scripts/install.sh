@@ -45,14 +45,23 @@ step ".env"
 if [ -f .env ]; then
     warn ".env già presente, skip."
 else
-    cp .env-example .env
     echo -n "  APP_NAME (default: myapp): "
     read -r APP_NAME
     APP_NAME=${APP_NAME:-myapp}
-    sed -i.bak "s/^APP_NAME=.*/APP_NAME=${APP_NAME}/" .env
-    sed -i.bak "s/^DOCKER_PROJECT_DIR_NAME=.*/DOCKER_PROJECT_DIR_NAME=$(basename "$PWD")/" .env
-    rm -f .env.bak
-    ok ".env creato con APP_NAME=${APP_NAME}."
+    echo -n "  DB_DATABASE (default: ${APP_NAME}): "
+    read -r DB_DATABASE
+    DB_DATABASE=${DB_DATABASE:-${APP_NAME}}
+    echo -n "  DB_USERNAME (default: ${APP_NAME}): "
+    read -r DB_USERNAME
+    DB_USERNAME=${DB_USERNAME:-${APP_NAME}}
+    echo -n "  DB_PASSWORD (default: ${APP_NAME}): "
+    read -r -s DB_PASSWORD
+    echo
+    DB_PASSWORD=${DB_PASSWORD:-${APP_NAME}}
+    DOCKER_PROJECT_DIR_NAME=$(basename "$PWD")
+    export APP_NAME DOCKER_PROJECT_DIR_NAME DB_DATABASE DB_USERNAME DB_PASSWORD
+    envsubst '${APP_NAME} ${DOCKER_PROJECT_DIR_NAME} ${DB_DATABASE} ${DB_USERNAME} ${DB_PASSWORD}' < .env-example > .env
+    ok ".env creato con APP_NAME=${APP_NAME}, DB_DATABASE=${DB_DATABASE}."
 fi
 
 # ─── submodule ───────────────────────────────────────────────────────────────
