@@ -2,12 +2,14 @@
 
 Punto di partenza di Webmapp
 
-## Laravel 11 basato su Nova 5
+## Laravel 12 basato su Nova 5
 
-Boilerplate per Laravel 11 basato su PHP 8.4 e Postgres + PostGIS. Supporto locale per web server PHP e Xdebug oltre a:
+Boilerplate per Laravel 12 basato su PHP 8.4 e Postgres + PostGIS. Supporto locale per web server PHP e Xdebug oltre a:
 
 -   redis
 -   elasticsearch
+-   kibana
+-   horizon
 
 per la versione di produzione e:
 
@@ -18,7 +20,7 @@ per la versione di sviluppo
 
 ## INSTALLAZIONE
 
-Prima di tutto, installa il repository [GEOBOX](https://github.com/webmappsrl/geobox) e configura il [comando ALIASES](https://github.com/webmappsrl/geobox#aliases-and-global-shell-variable).  
+Prima di tutto, installa il repository [GEOBOX](https://github.com/webmappsrl/geobox) e configura il [comando ALIASES](https://github.com/webmappsrl/geobox#aliases-and-global-shell-variable).
 Sostituisci `${instance name}` con il nome dell'istanza (APP_NAME nel file .env-example).
 
 ```sh
@@ -30,14 +32,14 @@ git clone git@github.com:webmappsrl/${repository_name}.git ${instance name}
 ```sh
 cd ${instance name}
 bash docker/init-docker.sh
-docker exec -u 0 -it php_${instance name} bash
+docker exec -u 0 -it php-${instance name} bash
 chown -R 33 storage
 ```
 
 ### Se hai installato XDEBUG, crea il file xdebug.log nel container Docker
 
 ```sh
-docker exec -u 0 -it php_${instance name} bash
+docker exec -u 0 -it php-${instance name} bash
 touch /var/log/xdebug.log
 chown -R 33 /var/log/
 ```
@@ -47,18 +49,17 @@ chown -R 33 /var/log/
 Avvia una bash all'interno del container php per installare tutte le dipendenze (utilizzare `APP_NAME` al posto di `$nomeApp`):
 
 ```sh
-docker exec -it php_$nomeApp bash
+docker exec -it php-$nomeApp bash
 composer install
 php artisan key:generate
 php artisan optimize
 php artisan migrate
-php artisan jwt:secret
 ```
 
 #### Nota:
 
 -   Per completare l'installazione di Laravel Nova, é necessario fornire le credenziali di accesso.
-  
+
 ### Differenze ambiente produzione locale
 
 Questo sistema di container docker è utilizzabile sia per lo sviluppo locale sia per un sistema in produzione.
@@ -73,6 +74,12 @@ Per l'ambiente dev/locale invece:
 
 ```sh
 docker compose -f develop.compose.yml up -d
+```
+
+Per l'ambiente locale standalone (senza nginx, con `php artisan serve`):
+
+```sh
+docker compose -f local.compose.yml up -d
 ```
 
 In locale abbiamo queste caratteristiche:
@@ -108,6 +115,7 @@ In locale abbiamo queste caratteristiche:
     -   `DB_DATABASE`
     -   `DB_USERNAME`
     -   `DB_PASSWORD`
+    -   `ELASTICSEARCH_PASSWORD` (default: changeme)
 
 -   Una volta compilato correttamente il file .env, tirare sù l'ambiente docker:
     ```sh
@@ -124,7 +132,7 @@ In locale abbiamo queste caratteristiche:
 -   Avvio di una bash all'interno del container php per installare tutte le dipendenze e lanciare il comando php artisan serve (utilizzare `APP_NAME` al posto di `$nomeApp`):
 
     ```sh
-    docker exec -it php_$nomeApp bash
+    docker exec -it php-$nomeApp bash
     composer install
     php artisan key:generate
     php artisan optimize
@@ -150,14 +158,14 @@ Una volta avviato il container con xdebug configurare il file `.vscode/launch.js
             "request": "launch",
             "port": 9200,
             "pathMappings": {
-                "/var/www/html/geomixer2": "${workspaceRoot}"
+                "/var/www/html/myapp": "${workspaceRoot}"
             }
         }
     ]
 }
 ```
 
-Aggiornare `/var/www/html/geomixer2` con la path della cartella del progetto nel container phpfpm.
+Aggiornare `/var/www/html/myapp` con la path della cartella del progetto nel container phpfpm.
 
 Per utilizzare xdebug **su browser** utilizzare uno di questi 2 metodi:
 
@@ -182,7 +190,7 @@ Durante l'esecuzione degli script potrebbero verificarsi problemi di scrittura s
     Utilizzare il parametro `-u` per il comando `docker exec` così da specificare l'id utente, eg come utente root (utilizzare `APP_NAME` al posto di `$nomeApp`):
 
     ```bash
-    docker exec -u 0 -it php_$nomeApp bash
+    docker exec -u 0 -it php-$nomeApp bash
     chown -R 33 storage
     ```
 

@@ -3,13 +3,23 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Nova\App as NovaApp;
 use App\Nova\Dashboards\Main;
+use App\Nova\EcPoi;
+use App\Nova\EcTrack;
+use App\Nova\Layer;
+use App\Nova\Media as NovaMedia;
+use App\Nova\TaxonomyPoiType;
+use App\Nova\UgcPoi;
+use App\Nova\UgcTrack;
+use App\Nova\User as NovaUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Fortify\Features;
 use Laravel\Nova\Menu\MenuItem;
 use Laravel\Nova\Menu\MenuSection;
+use Laravel\Nova\Menu\MenuGroup;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
 
@@ -28,12 +38,39 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             return [
                 MenuSection::dashboard(Main::class)->icon('chart-bar'),
 
-                MenuSection::make('Tools', [
-                    MenuItem::externalLink('Horizon', url('/horizon'))->openInNewTab(),
-                    MenuItem::externalLink('logs', url('logs'))->openInNewTab(),
-                ])->icon('briefcase')->canSee(function (Request $request) {
-                    return $request->user()->email === 'team@webmapp.it';
-                }),
+                MenuSection::make(__('Admin'), [
+                    MenuItem::resource(NovaApp::class)
+                        ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator')),
+                    MenuItem::resource(NovaUser::class)
+                        ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator')),
+                    MenuItem::resource(NovaMedia::class)
+                        ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator')),
+                ])->icon('user')
+                    ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator'))
+                    ->collapsable()
+                    ->collapsedByDefault(),
+
+                MenuSection::make('UGC', [
+                    MenuItem::resource(UgcPoi::class),
+                    MenuItem::resource(UgcTrack::class),
+                ])->icon('document'),
+
+                MenuSection::make('EC', [
+                    MenuItem::resource(EcPoi::class),
+                    MenuItem::resource(EcTrack::class),
+                    MenuItem::resource(Layer::class),
+                ])->icon('document'),
+
+                MenuSection::make('Taxonomies', [
+                    MenuItem::resource(TaxonomyPoiType::class),
+                ])->icon('document'),
+
+                MenuSection::make(__('Files'), [
+                    MenuItem::externalLink(__('Icons'), route('icons.upload.show'))->openInNewTab(),
+                ])->icon('folder')
+                    ->canSee(fn(Request $request) => $request->user()->hasRole('Administrator'))
+                    ->collapsable()
+                    ->collapsedByDefault(),
             ];
         });
     }
@@ -72,9 +109,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewNova', function (User $user) {
-            return in_array($user->email, [
-                //
-            ]);
+            return ! $user->hasRole('Guest');
         });
     }
 
