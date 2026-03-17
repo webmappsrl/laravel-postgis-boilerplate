@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Nova\Dashboards\Main;
+use App\Nova\Media;
+use App\Nova\User as NovaUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
@@ -28,12 +30,19 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             return [
                 MenuSection::dashboard(Main::class)->icon('chart-bar'),
 
-                MenuSection::make('Tools', [
-                    MenuItem::externalLink('Horizon', url('/horizon'))->openInNewTab(),
-                    MenuItem::externalLink('logs', url('logs'))->openInNewTab(),
-                ])->icon('briefcase')->canSee(function (Request $request) {
-                    return $request->user()->email === 'team@webmapp.it';
-                }),
+                MenuSection::make(__('Admin'), [
+                    MenuItem::resource(NovaUser::class),
+                ])->icon('user')
+                    ->canSee(fn (Request $request) => $request->user()->hasRole('Administrator'))
+                    ->collapsable()
+                    ->collapsedByDefault(),
+
+                MenuSection::make(__('Media'), [
+                    MenuItem::resource(Media::class),
+                ])->icon('photograph')
+                    ->canSee(fn (Request $request) => $request->user()->hasRole('Administrator'))
+                    ->collapsable()
+                    ->collapsedByDefault(),
             ];
         });
     }
@@ -72,9 +81,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     protected function gate(): void
     {
         Gate::define('viewNova', function (User $user) {
-            return in_array($user->email, [
-                //
-            ]);
+            return ! $user->hasRole('Guest');
         });
     }
 
